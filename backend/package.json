@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
-    "db:init": "psql $DATABASE_URL -f db/schema.sql"
+    "db:init": "psql $DATABASE_URL -f db/schema.sql",
+    "db:migrate": "node scripts/migrate.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
