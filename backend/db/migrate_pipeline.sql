@@ -8,13 +8,13 @@ CREATE TABLE IF NOT EXISTS sales_reps (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Migrate existing stage values to new names before changing constraint
+-- 2. Drop old stage constraint before updating values
+ALTER TABLE customers DROP CONSTRAINT IF EXISTS customers_deal_stage_check;
+
+-- 3. Migrate existing stage values to new names
 UPDATE customers SET deal_stage = 'Prospecting' WHERE deal_stage = 'Prospect';
 UPDATE customers SET deal_stage = 'POC Active'  WHERE deal_stage = 'POC';
 UPDATE customers SET deal_stage = 'Post-Sale'   WHERE deal_stage = 'Active Customer';
-
--- 3. Drop old stage constraint
-ALTER TABLE customers DROP CONSTRAINT IF EXISTS customers_deal_stage_check;
 
 -- 4. Add new pipeline columns
 ALTER TABLE customers
