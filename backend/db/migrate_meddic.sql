@@ -1,0 +1,3 @@
+ALTER TABLE customers
+  ADD COLUMN IF NOT EXISTS meddic_data  JSONB   DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS meddic_score INTEGER DEFAULT 0;
