@@ -39,7 +39,10 @@ app.use(compression());
 // requests are same-origin and don't trigger CORS. This config covers:
 //   • local dev (Vite dev server on :5173)
 //   • any external API consumer
-const ALLOWED_ORIGINS = (process.env.FRONTEND_URL || 'http://localhost:5173')
+const ALLOWED_ORIGINS = (
+  process.env.FRONTEND_URL ||
+  'http://localhost:5173,https://hextropian-crm-production.up.railway.app'
+)
   .split(',')
   .map((o) => o.trim());
 
