@@ -1,12 +1,13 @@
 import 'dotenv/config';
+import { existsSync, readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import pool from './db.js';
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import { existsSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { requireAuth } from './middleware/auth.js';
 import customersRouter  from './routes/customers.js';
 import authRouter       from './routes/auth.js';
@@ -110,6 +111,53 @@ if (IS_PROD) {
   }
 }
 
-app.listen(PORT, () =>
-  console.log(`Hextropian CRM API running on http://localhost:${PORT} [${IS_PROD ? 'production' : 'development'}]`)
-);
+const MIGRATIONS = [
+  'schema.sql',
+  'migrate_pipeline.sql',
+  'migrate_auth.sql',
+  'migrate_email.sql',
+  'migrate_calendar.sql',
+  'migrate_enablement.sql',
+  'migrate_meddic.sql',
+  'migrate_prospecting.sql',
+  'migrate_lead_assignment.sql',
+];
+
+async function runMigrations() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        filename   TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    for (const file of MIGRATIONS) {
+      const { rows } = await client.query(
+        'SELECT 1 FROM schema_migrations WHERE filename = $1', [file]
+      );
+      if (rows.length > 0) continue;
+      const sql = readFileSync(join(__dirname, 'db', file), 'utf8');
+      await client.query(sql);
+      await client.query('INSERT INTO schema_migrations (filename) VALUES ($1)', [file]);
+      console.log(`  migrated: ${file}`);
+    }
+    console.log('Migrations complete.');
+  } finally {
+    client.release();
+  }
+}
+
+async function start() {
+  try {
+    await runMigrations();
+  } catch (err) {
+    console.error('Migration error:', err.message);
+    process.exit(1);
+  }
+  app.listen(PORT, () =>
+    console.log(`Hextropian CRM API running on http://localhost:${PORT} [${IS_PROD ? 'production' : 'development'}]`)
+  );
+}
+
+start();

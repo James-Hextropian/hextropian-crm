@@ -21,6 +21,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS customers_updated_at ON customers;
 CREATE TRIGGER customers_updated_at
   BEFORE UPDATE ON customers
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -33,6 +34,7 @@ CREATE TABLE IF NOT EXISTS customer_notes (
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS customer_notes_updated_at ON customer_notes;
 CREATE TRIGGER customer_notes_updated_at
   BEFORE UPDATE ON customer_notes
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -50,6 +52,7 @@ CREATE TABLE IF NOT EXISTS customer_contacts (
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS customer_contacts_updated_at ON customer_contacts;
 CREATE TRIGGER customer_contacts_updated_at
   BEFORE UPDATE ON customer_contacts
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();

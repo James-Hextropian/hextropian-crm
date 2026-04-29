@@ -24,6 +24,7 @@ CREATE INDEX IF NOT EXISTS contacts_status_idx   ON contacts(status);
 CREATE INDEX IF NOT EXISTS contacts_company_idx  ON contacts(company);
 CREATE INDEX IF NOT EXISTS contacts_email_idx    ON contacts(email);
 
+DROP TRIGGER IF EXISTS contacts_updated_at ON contacts;
 CREATE TRIGGER contacts_updated_at
   BEFORE UPDATE ON contacts
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -43,6 +44,7 @@ CREATE TABLE IF NOT EXISTS workqueue (
 
 CREATE INDEX IF NOT EXISTS workqueue_rep_active_idx ON workqueue(rep_id, completed);
 
+DROP TRIGGER IF EXISTS workqueue_updated_at ON workqueue;
 CREATE TRIGGER workqueue_updated_at
   BEFORE UPDATE ON workqueue
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();

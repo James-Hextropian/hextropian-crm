@@ -1,7 +1,3 @@
-// Run all database migrations in order.
-// Usage: node backend/scripts/migrate.js
-// Or via npm: npm run db:migrate (from project root)
-
 import 'dotenv/config';
 import pool from '../db.js';
 import { readFileSync } from 'fs';
@@ -26,11 +22,24 @@ const MIGRATIONS = [
 async function run() {
   const client = await pool.connect();
   try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        filename   TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
     for (const file of MIGRATIONS) {
-      const path = join(DB_DIR, file);
-      const sql  = readFileSync(path, 'utf8');
+      const { rows } = await client.query(
+        'SELECT 1 FROM schema_migrations WHERE filename = $1', [file]
+      );
+      if (rows.length > 0) {
+        console.log(`  skipped (already applied): ${file}`);
+        continue;
+      }
+      const sql = readFileSync(join(DB_DIR, file), 'utf8');
       process.stdout.write(`  running ${file}... `);
       await client.query(sql);
+      await client.query('INSERT INTO schema_migrations (filename) VALUES ($1)', [file]);
       console.log('✓');
     }
     console.log('\nAll migrations complete.');

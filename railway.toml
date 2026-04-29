@@ -2,7 +2,6 @@
 buildCommand = "npm ci --prefix backend && npm ci --prefix frontend && npm run build --prefix frontend"
 
 [deploy]
-preDeployCommand = "npm run db:migrate"
 startCommand = "node backend/server.js"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
