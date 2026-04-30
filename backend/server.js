@@ -26,6 +26,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const IS_PROD   = process.env.NODE_ENV === 'production';
 const PORT      = process.env.PORT || 3001;
 
+// Fail fast if required secrets are missing
+const REQUIRED_ENV = ['JWT_SECRET', 'JWT_REFRESH_SECRET'];
+const missing = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missing.length) {
+  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+  console.error('Set these in Railway dashboard → your service → Variables.');
+  process.exit(1);
+}
+console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
+
 const app = express();
 
 // ── Trust Railway's reverse proxy so req.ip is the real client IP ─────────────
