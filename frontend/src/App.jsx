@@ -30,7 +30,13 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     loadReps();
-    if (user.rep_id && user.role === 'sales_rep') setCurrentRepId(user.rep_id);
+    // Auto-select rep: own rep_id if set, else restore last selection from localStorage
+    if (user.rep_id) {
+      setCurrentRepId(user.rep_id);
+    } else {
+      const saved = localStorage.getItem('currentRepId');
+      if (saved) setCurrentRepId(Number(saved));
+    }
     authFetch('/api/calendar/status').then((s) => setGoogleConnected(s.connected)).catch(() => {});
   }, [user]);
 
