@@ -134,6 +134,7 @@ const MIGRATIONS = [
   'migrate_meddic.sql',
   'migrate_prospecting.sql',
   'migrate_lead_assignment.sql',
+  'migrate_rep_ids.sql',
 ];
 
 async function runMigrations() {
